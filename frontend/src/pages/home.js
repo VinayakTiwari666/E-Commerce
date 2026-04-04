@@ -2,192 +2,440 @@ import React, { useEffect, useState } from "react";
 import ProductCard from "../components/productcart";
 import logo from "../assets/logo.png";
 
-
 function Home({ addToCart }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [isCompact, setIsCompact] = useState(window.innerWidth <= 860);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
 
   useEffect(() => {
-  fetch("https://dummyjson.com/products")
-    .then((res) => res.json())
-    .then((data) => {
-      setProducts(data.products);
-      setLoading(false);
-    })
-    .catch((err) => {
-      console.error(err);
-      setLoading(false);
-    });
-}, []);
-const searchedProducts = products.filter(product => {
-  const term = searchTerm.toLowerCase();
+    const handleResize = () => {
+      setIsCompact(window.innerWidth <= 860);
+      setIsMobile(window.innerWidth <= 640);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    fetch("https://dummyjson.com/products")
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data.products);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
+  const searchedProducts = products.filter((product) => {
+    const term = searchTerm.toLowerCase();
+
+    return (
+      product.title.toLowerCase().includes(term) ||
+      product.category.toLowerCase().includes(term)
+    );
+  });
+
+  const categories = [...new Set(products.map((product) => product.category))];
 
   return (
-    product.title.toLowerCase().includes(term) ||
-    product.category.toLowerCase().includes(term)
-  );
-});
+    <section style={styles.page} className="page-shell">
+      <div
+        style={{
+          ...styles.wrapper,
+          padding: isMobile ? "0 2px" : undefined,
+        }}
+      >
+        <section
+          style={{
+            ...styles.hero,
+            gridTemplateColumns: isCompact ? "1fr" : "1.4fr 0.9fr",
+          }}
+        >
+          <div style={styles.heroCopy}>
+            <p className="eyebrow">Curated storefront</p>
+            <h1
+              style={{
+                ...styles.heroTitle,
+                fontSize: isMobile
+                  ? "clamp(1.9rem, 10vw, 2.7rem)"
+                  : styles.heroTitle.fontSize,
+              }}
+              className="section-title"
+            >
+              Better product browsing with a sharper light and dark theme.
+            </h1>
+            <p style={styles.heroText} className="muted">
+              Browse by category, inspect the details, and keep the interface in
+              a mode that actually changes the mood of the shop.
+            </p>
+            <div style={styles.heroActions}>
+              <div style={styles.statCard} className="panel">
+                <strong style={styles.statValue}>
+                  {products.length || "24"}
+                </strong>
+                <span style={styles.statLabel}>Products loaded</span>
+              </div>
+              <div style={styles.statCard} className="panel">
+                <strong style={styles.statValue}>
+                  {categories.length || "6"}
+                </strong>
+                <span style={styles.statLabel}>Live categories</span>
+              </div>
+            </div>
+          </div>
 
+          <div
+            style={{
+              ...styles.heroVisual,
+              padding: isMobile ? "22px" : styles.heroVisual.padding,
+              minHeight: isMobile ? "280px" : styles.heroVisual.minHeight,
+            }}
+            className="panel"
+          >
+            <div style={styles.heroBadge}>Featured store</div>
+            <img src={logo} alt="Store logo" style={styles.heroLogo} />
+            <div style={styles.heroVisualFooter}>
+              <span style={styles.heroVisualTitle}>SarvaMart</span>
+              <span style={styles.heroVisualText}>
+                Structured, faster, clearer
+              </span>
+            </div>
+          </div>
+        </section>
 
-const categories = [...new Set(products.map(p => p.category))];
+        <section
+          style={{
+            ...styles.filterBar,
+            gridTemplateColumns: isCompact ? "1fr" : "1fr minmax(260px, 420px)",
+            padding: isMobile ? "20px" : styles.filterBar.padding,
+          }}
+          className="panel"
+        >
+          <div style={styles.filterCopy}>
+            <p className="eyebrow">Search products</p>
+            <h2
+              style={{
+                ...styles.filterTitle,
+                fontSize: isMobile ? "1.8rem" : styles.filterTitle.fontSize,
+              }}
+              className="section-title"
+            >
+              Find products faster
+            </h2>
+            <p style={styles.filterText}>
+              Search by product name or category and jump straight to what you
+              need.
+            </p>
+          </div>
 
+          <div
+            style={{
+              ...styles.searchWrap,
+              flexDirection: isMobile ? "column" : "row",
+              alignItems: isMobile ? "stretch" : styles.searchWrap.alignItems,
+              padding: isMobile ? "12px" : styles.searchWrap.padding,
+            }}
+            className="panel"
+          >
+            <span
+              style={{
+                ...styles.searchIcon,
+                width: isMobile ? "100%" : "auto",
+                textAlign: isMobile ? "center" : "left",
+              }}
+            >
+              Search
+            </span>
+            <input
+              type="text"
+              placeholder="Search by title or category"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input prominent-search"
+              style={{
+                ...styles.searchInput,
+                width: "100%",
+                minWidth: 0,
+              }}
+            />
+          </div>
+        </section>
 
+        {!loading && searchedProducts.length === 0 && (
+          <div style={styles.emptyState} className="panel">
+            <p style={styles.emptyTitle} className="section-title">
+              No matching products
+            </p>
+            <p className="muted">Try a different title or category keyword.</p>
+          </div>
+        )}
 
-const filteredProducts = products.filter((product) =>
-  product.title.toLowerCase().includes(searchTerm.toLowerCase())
-);
-return (
-  <div style={styles.page}>
-    <div style={styles.pageWrapper}>
-      {/* Centered logo */}
-      <div style={styles.heroLogo}>
-        <img src={logo} alt="App Logo" style={styles.heroLogoImg} />
-      </div>
+        {loading && (
+          <div style={styles.emptyState} className="panel">
+            <p style={styles.emptyTitle} className="section-title">
+              Loading products
+            </p>
+            <p className="muted">Fetching the current catalog.</p>
+          </div>
+        )}
 
-      <div style={styles.headerSection}>
-        <h2 style={styles.pageTitle}>Latest Products</h2>
-
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={styles.searchInput}
-        />
-      </div>
-
-      {/* No results */}
-      {!loading && searchedProducts.length === 0 && (
-        <p style={{ textAlign: "center" }}>
-          OOPS❗No products found 😓
-        </p>
-      )}
-
-      {/* Loading */}
-      {loading && (
-        <p style={{ textAlign: "center" }}>
-          Loading products...
-        </p>
-      )}
-
-      {/* Products */}
-      {!loading && searchedProducts.length > 0 && (
-        <>
-          {categories.map((category) => {
+        {!loading &&
+          searchedProducts.length > 0 &&
+          categories.map((category) => {
             const categoryProducts = searchedProducts.filter(
-              (product) => product.category === category
+              (product) => product.category === category,
             );
 
-            if (categoryProducts.length === 0) return null;
+            if (categoryProducts.length === 0) {
+              return null;
+            }
 
             return (
-              <div key={category} style={styles.categorySection}>
-                <h2 style={styles.categoryTitle}>
-                  {category.toUpperCase()}
-                </h2>
+              <section key={category} style={styles.categoryBlock}>
+                <div style={styles.categoryHeader}>
+                  <div>
+                    <p className="eyebrow">Category</p>
+                    <h3 style={styles.categoryTitle} className="section-title">
+                      {formatCategory(category)}
+                    </h3>
+                  </div>
+                  <span
+                    style={{
+                      ...styles.categoryCount,
+                      alignSelf: isCompact ? "flex-start" : "center",
+                    }}
+                  >
+                    {categoryProducts.length} items
+                  </span>
+                </div>
 
-                <div style={styles.container}>
+                <div
+                  style={{
+                    ...styles.productRail,
+                    ...(isMobile
+                      ? {
+                          display: "flex",
+                          overflowX: "auto",
+                          paddingBottom: "8px",
+                          scrollSnapType: "x proximity",
+                          WebkitOverflowScrolling: "touch",
+                        }
+                      : {}),
+                  }}
+                >
                   {categoryProducts.slice(0, 6).map((product) => (
-                    <ProductCard
+                    <div
                       key={product.id}
-                      product={product}
-                      addToCart={addToCart}
-                    />
+                      style={
+                        isMobile
+                          ? {
+                              minWidth: "260px",
+                              flex: "0 0 260px",
+                              scrollSnapAlign: "start",
+                            }
+                          : undefined
+                      }
+                    >
+                      <ProductCard
+                        product={product}
+                        addToCart={addToCart}
+                      />
+                    </div>
                   ))}
                 </div>
-              </div>
+              </section>
             );
           })}
-        </>
-      )}
-    </div>
-  </div>
-);
+      </div>
+    </section>
+  );
+}
 
-
+function formatCategory(category) {
+  return category
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 export default Home;
+
 const styles = {
   page: {
-    minHeight: "100vh",
-    background: "linear-gradient(135deg, #fff7ed 0%, #f5f3ff 50%, #ecfeff 100%)",
+    padding: "36px 16px 80px",
   },
-
-  pageWrapper: {
-    maxWidth: "1200px",
+  wrapper: {
+    maxWidth: "1240px",
     margin: "0 auto",
-    padding: "0 20px",
   },
-
-  container: {
+  hero: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-    gap: "25px",
+    gap: "24px",
+    alignItems: "stretch",
+    marginBottom: "28px",
   },
-
-  heroLogo: {
+  heroCopy: {
+    padding: "8px 0",
+  },
+  heroTitle: {
+    margin: 0,
+    maxWidth: "720px",
+    fontSize: "clamp(2.2rem, 5.2vw, 4rem)",
+    lineHeight: 1,
+  },
+  heroText: {
+    marginTop: "18px",
+    maxWidth: "620px",
+    fontSize: "1.02rem",
+    lineHeight: 1.7,
+  },
+  heroActions: {
     display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "30px 0",
+    gap: "14px",
+    flexWrap: "wrap",
+    marginTop: "28px",
   },
-
-  heroLogoImg: {
-    width: "260px",
-    height: "140px",
+  statCard: {
+    minWidth: "170px",
+    padding: "18px 20px",
+    borderRadius: "22px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+  },
+  statValue: {
+    fontSize: "2rem",
+    lineHeight: 1,
+  },
+  statLabel: {
+    color: "var(--muted)",
+    fontWeight: 600,
+  },
+  heroVisual: {
+    borderRadius: "20px",
+    padding: "28px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    minHeight: "340px",
+    background:
+      "linear-gradient(to right, #7c3aed10, transparent), var(--card)",
+  },
+  heroBadge: {
+    alignSelf: "flex-start",
+    padding: "10px 14px",
+    borderRadius: "999px",
+    background: "var(--secondary)",
+    color: "var(--primary)",
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    fontSize: "0.74rem",
+  },
+  heroLogo: {
+    width: "100%",
+    maxWidth: "240px",
+    alignSelf: "center",
     objectFit: "contain",
-    border: "2px solid #ddd",
-    borderRadius: "14px",
-    padding: "16px",
-    backgroundColor: "#fff",
+    filter: "drop-shadow(0 22px 24px rgba(124, 58, 237, 0.12))",
   },
-
-  headerSection: {
-    textAlign: "center",
-    marginBottom: "50px",
+  heroVisualFooter: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
   },
-
-  pageTitle: {
-    fontSize: "28px",
-    fontWeight: "700",
-    marginBottom: "20px",
+  heroVisualTitle: {
+    fontSize: "1.3rem",
+    fontWeight: 800,
   },
-
-  searchInput: {
+  heroVisualText: {
+    color: "var(--muted)",
+  },
+  filterBar: {
+    borderRadius: "20px",
+    padding: "24px",
+    display: "grid",
+    gap: "22px",
+    alignItems: "end",
+    marginBottom: "28px",
+  },
+  filterCopy: {
+    maxWidth: "520px",
+  },
+  filterTitle: {
+    margin: 0,
+    fontSize: "2.2rem",
+  },
+  filterText: {
+    margin: "10px 0 0",
+    color: "var(--muted)",
+    lineHeight: 1.6,
+    fontSize: "1rem",
+  },
+  searchWrap: {
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
+    padding: "14px",
+    borderRadius: "18px",
+    boxShadow: "var(--shadow)",
+    background:
+      "linear-gradient(to right, #7c3aed10, transparent), var(--card)",
+  },
+  searchIcon: {
+    flexShrink: 0,
     padding: "12px 14px",
-    width: "320px",
-    maxWidth: "90%",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
+    borderRadius: "12px",
+    background: "var(--primary)",
+    color: "#fff",
+    fontSize: "0.82rem",
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
   },
-
-  categorySection: {
-    marginBottom: "70px",
+  searchInput: {
+    fontSize: "1.02rem",
+    padding: "18px 18px",
+    borderRadius: "14px",
   },
-
+  emptyState: {
+    padding: "42px 24px",
+    borderRadius: "20px",
+    textAlign: "center",
+  },
+  emptyTitle: {
+    margin: "0 0 8px",
+    fontSize: "1.8rem",
+  },
+  categoryBlock: {
+    marginBottom: "34px",
+  },
+  categoryHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "end",
+    flexWrap: "wrap",
+    gap: "12px",
+    marginBottom: "14px",
+  },
   categoryTitle: {
-    textAlign: "center",          // ✅ true centering
-    marginBottom: "12px",
-    marginTop: "20px",
-    fontSize: "24px",
-    fontWeight: "700",
-    letterSpacing: "1px",
+    margin: 0,
+    fontSize: "1.8rem",
   },
-
-  categoryDivider: {
-    width: "60px",
-    height: "3px",
-    backgroundColor: "#8b5cf6",
-    margin: "0 auto 25px",
-    borderRadius: "2px",
+  categoryCount: {
+    color: "var(--muted)",
+    fontWeight: 700,
+  },
+  productRail: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "18px",
   },
 };
-
-
-
-
-
-

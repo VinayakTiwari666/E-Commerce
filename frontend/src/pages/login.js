@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -27,69 +27,103 @@ function Login() {
   };
 
   return (
-    <div style={styles.container}>
-      <h2>Login</h2>
+    <div style={styles.page} className="page-shell">
+      <div style={styles.container} className="panel">
+        <div style={styles.header}>
+          <p className="eyebrow">Welcome back</p>
+          <h2 className="section-title" style={styles.title}>
+            Sign in to your account
+          </h2>
+          <p style={styles.copy}>
+            Access your orders, your cart, and the current catalog in one place.
+          </p>
+        </div>
 
-      <form onSubmit={handleLogin} style={styles.form}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={styles.input}
-        />
+        <form onSubmit={handleLogin} style={styles.form}>
+          <label style={styles.field}>
+            <span style={styles.label}>Email</span>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input"
+            />
+          </label>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-        />
+          <label style={styles.field}>
+            <span style={styles.label}>Password</span>
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input"
+            />
+          </label>
 
-        {error && <p style={styles.error}>{error}</p>}
+          {error && <p style={styles.error}>{error}</p>}
 
-        <button type="submit" style={styles.button}>
-          Login
-        </button>
-      </form>
+          <button type="submit" className="btn btn-primary">
+            Login
+          </button>
+        </form>
+
+        <p style={styles.footerText}>
+          New here? <Link to="/register">Create an account</Link>
+        </p>
+      </div>
     </div>
   );
 }
 
 export default Login;
+
 const styles = {
+  page: {
+    padding: "52px 16px 80px",
+  },
   container: {
     maxWidth: "420px",
-    margin: "80px auto",
-    padding: "30px",
-    background: "#fff",
-    borderRadius: "14px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-    textAlign: "center",
+    margin: "0 auto",
+    padding: "34px",
+    borderRadius: "16px",
+  },
+  header: {
+    textAlign: "left",
+    marginBottom: "22px",
+  },
+  title: {
+    margin: 0,
+    fontSize: "2.2rem",
+  },
+  copy: {
+    margin: "12px 0 0",
+    color: "var(--muted)",
+    lineHeight: 1.6,
   },
   form: {
     display: "flex",
     flexDirection: "column",
     gap: "16px",
-    marginTop: "20px",
   },
-  input: {
-    padding: "12px",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
+  field: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
   },
-  button: {
-    padding: "12px",
-    backgroundColor: "#8b5cf6",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    fontWeight: "bold",
-    cursor: "pointer",
+  label: {
+    fontWeight: 700,
+    fontSize: "0.92rem",
   },
   error: {
-    color: "red",
+    color: "#ef4444",
     fontSize: "14px",
+    margin: 0,
+  },
+  footerText: {
+    marginTop: "20px",
+    color: "var(--muted)",
+    textAlign: "center",
   },
 };

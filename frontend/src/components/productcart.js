@@ -1,105 +1,179 @@
-
 import React, { useState } from "react";
-
 import { Link } from "react-router-dom";
-
 
 function ProductCard({ product, addToCart }) {
   const [added, setAdded] = useState(false);
-  return (
-    <div style={styles.cardWrapper}>
-      <Link
-        to={`/product/${product.id}`}
-        style={{ textDecoration: "none", color: "inherit" }}
-      >
-        <div
-          style={styles.card}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
-          <div style={styles.imageWrapper}>
-            <img
-              src={product.thumbnail}
-              alt={product.title}
-              style={styles.image}
-            />
-          </div>
 
-          <h3>{product.title}</h3>
-          <p>₹ {product.price}</p>
-
-          <button
-  style={{
-    ...styles.button,
-    backgroundColor: added ? "#16a34a" : "#8b5cf6",
-    cursor: added ? "default" : "pointer",
-  }}
-  disabled={added}
-  onClick={(e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
+  const handleAddToCart = () => {
     addToCart(product);
     setAdded(true);
-
-    // optional reset after 2 seconds
     setTimeout(() => setAdded(false), 2000);
-  }}
->
-  {added ? "Added ✓" : "Add to Cart"}
-</button>
+  };
 
+  return (
+    <article
+      style={styles.card}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.transform = "translateY(-6px)")
+      }
+      onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
+    >
+      <Link to={`/product/${product.id}`} style={styles.link}>
+        {/* IMAGE */}
+        <div style={styles.media}>
+          <img
+            src={product.thumbnail}
+            alt={product.title}
+            style={styles.image}
+          />
+          <span style={styles.badge}>{product.category}</span>
+        </div>
+
+        {/* CONTENT */}
+        <div style={styles.content}>
+          <div>
+            <h3 style={styles.title}>{product.title}</h3>
+            <p style={styles.description}>
+              {product.description ||
+                "Built for daily use and clean presentation."}
+            </p>
+          </div>
+
+          <div style={styles.meta}>
+            <strong style={styles.price}>
+              Rs {Number(product.price).toFixed(2)}
+            </strong>
+            <span style={styles.rating}>⭐ {product.rating || 4.8}</span>
+          </div>
         </div>
       </Link>
-    </div>
+
+      {/* BUTTON */}
+      <button
+        style={{
+          ...styles.button,
+          background: added
+            ? "#22c55e"
+            : "linear-gradient(135deg, #7c3aed, #6d28d9)",
+        }}
+        onClick={handleAddToCart}
+      >
+        {added ? "✔ Added" : "Add to Cart"}
+      </button>
+    </article>
   );
 }
+
 export default ProductCard;
+
 const styles = {
-  cardWrapper: {
-    border: "1px solid #e0e0e0",
-    borderRadius: "12px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-    backgroundColor: "#fff",
-  },
-
+  // 🔥 CARD (BUBBLE STYLE)
   card: {
-    padding: "15px",                 // ✅ spacing restored
-    display: "flex",                 // ✅ layout restored
+    borderRadius: "18px",
+    padding: "16px",
+    display: "flex",
     flexDirection: "column",
-    gap: "10px",
-    transition: "transform 0.2s ease",
+    gap: "14px",
+    minHeight: "100%",
+    background: "var(--card)",
+    border: "1px solid var(--border)",
+    boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
+    transition: "0.25s ease",
   },
 
-  imageWrapper: {
-    width: "100%",
-    aspectRatio: "4 / 3",
-    overflow: "hidden",
-    borderRadius: "8px",
-    backgroundColor: "#f3f3f3",
+  link: {
+    textDecoration: "none",
+    color: "inherit",
     display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: "column",
+    gap: "14px",
+    flex: 1,
+  },
+
+  // 🔥 IMAGE CONTAINER
+  media: {
+    position: "relative",
+    borderRadius: "14px",
+    overflow: "hidden",
+    minHeight: "200px",
+    background:
+      "linear-gradient(to right, #7c3aed10, transparent), var(--secondary)",
+    display: "grid",
+    placeItems: "center",
   },
 
   image: {
-    maxWidth: "100%",
-    maxHeight: "100%",
+    width: "100%",
+    height: "200px",
     objectFit: "contain",
+    padding: "16px",
+    transition: "0.3s",
   },
 
-  button: {
-    marginTop: "auto",
-    padding: "12px",
-    backgroundColor: "#8b5cf6",
+  // 🔥 CATEGORY BADGE
+  badge: {
+    position: "absolute",
+    top: "12px",
+    left: "12px",
+    padding: "6px 10px",
+    borderRadius: "999px",
+    background: "#7c3aed",
     color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "16px",
-    cursor: "pointer",
-    transition: "background-color 0.3s ease, transform 0.2s ease",
-
+    fontSize: "0.7rem",
+    fontWeight: 700,
+    textTransform: "uppercase",
   },
 
-};
+  content: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    gap: "12px",
+    flex: 1,
+  },
 
+  title: {
+    margin: 0,
+    fontSize: "1.05rem",
+    fontWeight: "600",
+    lineHeight: 1.3,
+  },
+
+  description: {
+    margin: "6px 0 0",
+    color: "var(--muted)",
+    fontSize: "0.9rem",
+    lineHeight: 1.5,
+  },
+
+  meta: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  price: {
+    fontSize: "1.1rem",
+    color: "#7c3aed",
+    fontWeight: "700",
+  },
+
+  rating: {
+    color: "var(--muted)",
+    fontWeight: "600",
+    fontSize: "0.85rem",
+  },
+
+  // 🔥 PREMIUM BUTTON
+  button: {
+    width: "100%",
+    padding: "12px",
+    borderRadius: "12px",
+    border: "none",
+    color: "white",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "0.25s",
+    boxShadow: "0 4px 14px rgba(124, 58, 237, 0.3)",
+  },
+};
