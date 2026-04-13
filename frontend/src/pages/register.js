@@ -101,12 +101,19 @@ export default Register;
 const styles = {
   page: {
     padding: "52px 16px 80px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
   },
   container: {
     maxWidth: "420px",
-    margin: "0 auto",
-    padding: "34px",
-    borderRadius: "16px",
+    width: "100%",
+    margin: "0",
+    padding: "36px",
+    borderRadius: "8px",
+    border: "1px solid var(--border)",
+    background: "var(--card)",
+    boxShadow: "0 18px 42px rgba(15, 23, 42, 0.14)",
   },
   header: {
     textAlign: "left",
